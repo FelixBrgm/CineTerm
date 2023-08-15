@@ -1,5 +1,5 @@
 use std::time;
-use std::{error::Error, thread};
+use std::thread;
 
 struct Frame {
     pixel: Vec<Vec<char>>,
