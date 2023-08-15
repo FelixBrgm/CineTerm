@@ -1,6 +1,8 @@
 use std::thread;
 use std::time;
 use std::time::Duration;
+use std::fs::File;
+use std::io::Read;
 
 struct Frame {
     pixel: Vec<Vec<char>>,
@@ -16,6 +18,23 @@ impl Frame {
             width,
         }
     }
+
+	fn from_file(height: usize, width: usize, file_path: &str) -> Result<Self, std::io::Error > {
+		let mut frame = Frame::new(height, width);
+
+		let mut file = File::open(file_path)?;
+
+		let mut file_contents = String::new();
+		file.read_to_string(&mut file_contents)?;
+
+		let lines: Vec<String> = file_contents.lines().map(String::from).collect();
+
+		for (index, line) in lines.iter().enumerate() {
+			frame.override_at_with_string(0, index as i32, line).unwrap_or_default();
+		}
+
+		Ok(frame)
+	}
 
     fn override_at_with_frame(&mut self, x: i32, y: i32, frame: &Frame) -> Result<(), &str> {
         for (line_index, line) in frame.pixel.iter().enumerate() {
