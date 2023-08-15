@@ -132,24 +132,5 @@ impl Movie {
     }
 }
 fn main() {
-    let mut movie: Movie = Movie::new(2, 10, 10);
-    for i in 0..10 {
-        movie.add_frame(Frame::new(10, 10));
-    }
-
-    let mut boy: Movie = Movie::new(2, 2, 2);
-
-    let mut f1 = Frame::new(2, 2);
-    f1.override_at_with_string(0, 0, "X");
-    f1.override_at_with_string(1, 1, "X");
-    boy.add_frame(f1);
-
-    let mut f2 = Frame::new(2, 2);
-    f2.override_at_with_string(0, 0, " X");
-    f2.override_at_with_string(0, 1, "X ");
-    boy.add_frame(f2);
-
-    movie.override_at_with_movie_start_end(4, 4, &boy, 3..6);
-
-    movie.play();
+  
 }
