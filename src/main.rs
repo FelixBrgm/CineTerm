@@ -1,5 +1,5 @@
-use std::time;
 use std::thread;
+use std::time;
 
 struct Frame {
     pixel: Vec<Vec<char>>,
@@ -79,6 +79,22 @@ impl Movie {
         Ok(())
     }
 
+    fn override_at_with_movie(&mut self, x: i32, y: i32, movie: &Movie) -> Result<(), &str> {
+        if self.frames_per_second != movie.frames_per_second {
+            return Err("Wrong frames_per_second");
+        }
+        let mut i: u32 = 0;
+        for frame in self.frames.iter_mut() {
+            let _ = frame.override_at_with_frame(x, y, &movie.frames[i as usize]);
+            i += 1;
+            if i >= movie.frames.len() as u32 {
+                i = 0;
+            }
+        }
+
+        Ok(())
+    }
+
     fn play(&self) {
         for frame in self.frames.iter() {
             print!("\x1B[2J\x1B[1;1H");
@@ -91,17 +107,24 @@ impl Movie {
 }
 fn main() {
     let mut movie: Movie = Movie::new(10, 10, 10);
-
-    let mut frame2 = Frame::new(4, 4);
-    frame2.override_at_with_string(0, 0, "XXXX");
-    frame2.override_at_with_string(0, 1, "XXXX");
-    frame2.override_at_with_string(0, 2, "XXXX");
-    frame2.override_at_with_string(0, 3, "XXXX");
-    for i in 0..20 {
-        let mut frame = Frame::new(10, 10);
-        frame.override_at_with_frame(i - 2, i - 2, &frame2);
-        let _ = movie.add_frame(frame);
+    for i in 0..100 {
+        movie.add_frame(Frame::new(10, 10));
     }
+
+    let mut boy: Movie = Movie::new(10, 2, 2);
+
+    let mut f1 = Frame::new(2, 2);
+    f1.override_at_with_string(0, 0, "X");
+    f1.override_at_with_string(1, 1, "X");
+    boy.add_frame(f1);
+
+    let mut f2 = Frame::new(2, 2);
+    f2.override_at_with_string(0, 0, " X");
+    f2.override_at_with_string(0, 1, "X ");
+    boy.add_frame(f2);
+
+    movie.override_at_with_movie(4, 4, &boy);
+    movie.override_at_with_movie(4, 7, &boy);
 
     movie.play();
 }
