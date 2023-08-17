@@ -8,11 +8,8 @@ repository = "https://github.com/FelixBrgm/cine_term"
 homepage = "https://github.com/FelixBrgm/cine_term"
 readme = "README.md"
 
-
-
 [dependencies]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 path = "src/lib.rs"
 
