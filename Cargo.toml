@@ -2,7 +2,17 @@
 name = "CineTerm"
 version = "0.1.0"
 edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "CineTerm is a crate to make animations/movies to be displayed in the terminal"
+repository = "https://github.com/FelixBrgm/CineTerm"
+homepage = "https://github.com/FelixBrgm/CineTerm"
+readme = "README.md"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 
 [dependencies]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+path = "src/lib.rs"
+
