@@ -169,11 +169,11 @@ impl Frame {
     /// * `x` - The X-coordinate of the starting position for the overlay.
     /// * `y` - The Y-coordinate of the starting position for the overlay.
     pub fn overlay_with_string_at_position(&mut self, x: i32, y: i32, str: &str) {
+        let mut frame: Frame = Frame::new(1, str.len());
         for (c_index, c) in str.as_bytes().iter().enumerate() {
-            if c_index < self.width {
-                self.pixels[0][c_index] = *c as char;
-            }
+            frame.pixels[0][c_index] = *c as char;
         }
+        self.overlay_with_frame_at_position(x, y, &frame);
     }
 
     /// Gets the width of the current frame.
