@@ -7,21 +7,13 @@ use std::time;
 /// An enum representing different colors.
 #[derive(Copy, Clone)]
 pub enum Color {
-    /// Black color.
     Black,
-    /// Red color.
     Red,
-    /// Green color.
     Green,
-    /// Yellow color.
     Yellow,
-    /// Blue color.
     Blue,
-    /// Magenta color.
     Magenta,
-    /// Cyan color.
     Cyan,
-    /// White color.
     White,
 }
 
