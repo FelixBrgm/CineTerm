@@ -4,6 +4,69 @@ use std::io::Read;
 use std::thread;
 use std::time;
 
+/// An enum representing different colors.
+#[derive(Copy, Clone)]
+pub enum Color {
+    /// Black color.
+    Black,
+    /// Red color.
+    Red,
+    /// Green color.
+    Green,
+    /// Yellow color.
+    Yellow,
+    /// Blue color.
+    Blue,
+    /// Magenta color.
+    Magenta,
+    /// Cyan color.
+    Cyan,
+    /// White color.
+    White,
+}
+
+impl Color {
+    /// Sets the terminal color to the represented color.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use cine_term::Color;
+    ///
+    /// let red_color = Color::Red;
+    /// red_color.change_terminal_color();
+    /// println!("This text will be displayed in red.");
+    /// ```
+    pub fn change_terminal_color(&self) {
+        let id = match *self {
+            Color::Black => 0,
+            Color::Red => 1,
+            Color::Green => 2,
+            Color::Yellow => 3,
+            Color::Blue => 4,
+            Color::Magenta => 5,
+            Color::Cyan => 6,
+            Color::White => 7,
+        };
+
+        print!("\x1b[3{}m", id);
+    }
+
+    /// Resets the terminal color to the default color.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use cine_term::Color;
+    ///
+    /// Color::reset();
+    /// println!("This text will be displayed in the default color.");
+    /// ```
+    pub fn reset() {
+        print!("\x1b[0m");
+    }
+}
+
 /// A struct representing a frame with pixels arranged in a grid.
 pub struct Frame {
     /// The height of the frame (number of rows).
@@ -12,11 +75,13 @@ pub struct Frame {
     width: usize,
     /// A 2D vector containing the pixels of the frame.
     pixels: Vec<Vec<char>>,
+    /// The color of the frame
+    color: Option<Color>,
 }
 
 impl Clone for Frame {
     fn clone(&self) -> Self {
-        Frame {
+        let mut f = Frame {
             height: self.height,
             width: self.width,
             pixels: self
@@ -24,11 +89,16 @@ impl Clone for Frame {
                 .iter()
                 .map(|inner_vec| inner_vec.clone())
                 .collect(),
+            color: self.color,
+        };
+        // if someone reads this and knows how to do it better please get in contact with me!
+        if let Some(c) = self.color {
+            f.color = Some(c.clone());
         }
+        f
     }
 }
 
-#[allow(dead_code)]
 impl Frame {
     /// Creates a new `Frame` instance with the specified dimensions.
     ///
@@ -48,10 +118,10 @@ impl Frame {
             pixels: vec![vec![' '; width]; height],
             height,
             width,
+            color: None,
         }
     }
 
-    /// Creates a new `Frame` instance from a string.
     ///
     /// This function takes a reference to a string and creates a new `Frame` instance
     /// with a single row and a width equal to the length of the input string.
@@ -102,6 +172,21 @@ impl Frame {
         }
 
         Ok(frame)
+    }
+
+    /// Fills the entire frame with the specified character.
+    ///
+    /// This function takes a character as an argument and sets all pixels in the frame to that character.
+    ///
+    /// # Arguments
+    ///
+    /// * `character` - The character to fill the frame with.
+    pub fn fill(&mut self, character: char) {
+        for row in self.pixels.iter_mut() {
+            for pixel in row.iter_mut() {
+                *pixel = character;
+            }
+        }
     }
 
     /// overlays the pixel data of the current frame with the pixel data from another frame.
@@ -183,7 +268,7 @@ impl Frame {
     /// # Returns
     ///
     /// Returns the width of the frame.
-    fn get_width(&self) -> usize {
+    pub fn get_width(&self) -> usize {
         self.width
     }
 
@@ -194,20 +279,35 @@ impl Frame {
     /// # Returns
     ///
     /// Returns the height of the frame.
-    fn get_height(&self) -> usize {
+    pub fn get_height(&self) -> usize {
         self.height
+    }
+
+    /// Sets the color of the whole frame.
+    ///
+    /// This function takes a reference to a Color enum and sets the color of all pixels in the frame to the specified color.
+    ///
+    /// # Arguments
+    ///
+    /// * `color` - A reference to a Color enum representing the desired color.
+    pub fn set_color(&mut self, color: &Color) {
+        self.color = Some(*color);
     }
 
     /// Prints the contents of the current frame.
     ///
     /// This function prints the pixel data of the current frame to the console, row by row.
     pub fn print(&self) {
+        if let Some(color) = self.color {
+            color.change_terminal_color();
+        }
         for line in &self.pixels {
             for c in line {
                 print!("{}", *c);
             }
             print!("\n");
         }
+        Color::reset();
     }
 }
 
@@ -311,6 +411,9 @@ impl Movie {
     /// "XXX".overlay_with_movie_at_position(0,1," O") == "X O"
     /// ```
     pub fn overlay_with_movie_at_position(&mut self, x: i32, y: i32, movie: &Movie) {
+        if movie.frames.len() == 0 {
+            return;
+        }
         let mut i: u32 = 0;
         for frame in self.frames.iter_mut() {
             let _ = frame.overlay_with_frame_at_position(x, y, &movie.frames[i as usize]);
